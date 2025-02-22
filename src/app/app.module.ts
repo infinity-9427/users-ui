@@ -13,6 +13,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatSelect } from '@angular/material/select';
+import { MatOption } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AddUserDialogComponent } from './add-user-dialog/add-user-dialog.component';
@@ -38,6 +40,8 @@ import { CreateTransactionDialogComponent } from './create-transaction-dialog/cr
     MatInputModule,
     MatButtonModule,
     MatDialogModule,
+    MatOption,
+    MatSelect,
     BrowserAnimationsModule,
     AppRoutingModule,
     StoreModule.forRoot({}, {}),

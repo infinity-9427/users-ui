@@ -1,0 +1,27 @@
+mat-form-field {
+    width: 100%; /* Make the form field take up the full width */
+    margin-bottom: 16px; /* Add some spacing between form fields */
+  }
+  
+  mat-label {
+    color: #3f51b5; /* Change the label color to a more visible blue */
+    font-weight: 500; /* Make the label slightly bolder */
+  }
+  
+  /* Optional: Add some padding to the input element */
+  input.mat-input-element {
+    padding: 8px;
+  }
+  
+  /* Optional: Add some spacing around the select element */
+  mat-select {
+    width: 100%;
+  }
+  
+  .mat-dialog-content {
+    padding-bottom: 16px; /* add padding to the bottom of the content*/
+  }
+  
+  .mat-dialog-actions{
+    justify-content: end; /* align buttons to the right */
+  }

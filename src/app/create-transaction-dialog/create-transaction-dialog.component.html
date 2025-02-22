@@ -1,1 +1,23 @@
-<p>create-transaction-dialog works!</p>
+<h2 mat-dialog-title>Create Transaction</h2>
+<mat-dialog-content>
+  <div *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</div>
+  <div *ngIf="successMessage" style="color: green;">{{ successMessage }}</div>
+
+  <mat-form-field>
+    <mat-label>Amount</mat-label>
+    <input matInput [(ngModel)]="data.amount" type="number" />
+  </mat-form-field>
+
+  <mat-form-field>
+    <mat-label>Type</mat-label>
+    <mat-select [(ngModel)]="data.type">
+      @for (types of elementType; track types) {
+        <mat-option [value]="types.viewValue">{{ types.viewValue }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">Cancel</button>
+  <button mat-button color="primary" (click)="createTransaction()" cdkFocusInitial>Create</button>
+</mat-dialog-actions>

@@ -2,29 +2,31 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { environment } from '../../environments/environment.development';
 
-interface Transaction {
-  id: number;
+interface TransactionData {
+  userId: number; 
   amount: number;
-  date: Date;
+  type: string;
 }
 
 @Injectable({
   providedIn: 'root',
 })
 export class TransactionService {
-  private apiUrl = 'YOUR_API_URL/transactions'; // Replace with your API endpoint
+  private apiUrl = `${environment.BASE_URL}/transactions`;
 
   constructor(private http: HttpClient) {}
 
-  getTransactions(userId: number): Observable<Transaction[]> {
-    return this.http.get<Transaction[]>(`${this.apiUrl}/${userId}`).pipe(
-      catchError(this.handleError)
-    );
+  createTransaction(transaction: TransactionData): Observable<any> {
+    return this.http.post(this.apiUrl, transaction).pipe(catchError(this.handleError));
   }
 
   private handleError(error: HttpErrorResponse): Observable<never> {
     console.error('An error occurred:', error);
+    console.error('Status:', error.status);
+    console.error('Error body:', error.error);
+    console.error('url:', error.url);
     return throwError(() => 'Something went wrong. Please try again later.');
   }
 }

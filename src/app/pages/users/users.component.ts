@@ -7,6 +7,7 @@ import { Observable } from 'rxjs';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { environment } from '../../../environments/environment.development';
 import { DeleteConfirmationDialogComponent } from '../../delete-confirmation-dialog/delete-confirmation-dialog.component';
+import { CreateTransactionDialogComponent } from '../../create-transaction-dialog/create-transaction-dialog.component';
 
 interface User {
   id: number;
@@ -97,8 +98,15 @@ export class UsersComponent implements OnInit {
   }
 
   createTransaction(user: User): void {
-    // Implement your transaction creation logic here
-    console.log('createTransaction');
-    // Navigate to create transaction page
+    const dialogRef = this.dialog.open(CreateTransactionDialogComponent, {
+      width: '400px',
+      data: { userId: user.id, amount: 0, type: 'amount' },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        console.log('Transaction data:', result);
+      }
+    });
   }
 }
