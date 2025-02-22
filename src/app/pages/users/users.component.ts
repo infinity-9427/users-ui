@@ -30,17 +30,21 @@ export class UsersComponent implements OnInit {
   displayedColumns: string[] = ['id', 'name', 'email', 'avatar', 'actions', 'delete', 'createTransaction'];
   private apiUrl = `${environment.BASE_URL}/users`;
   errorMessage: string | null = null;
+  loading: boolean = true;
 
   constructor(private router: Router, private userService: UserService, public dialog: MatDialog, private http: HttpClient) {}
 
   ngOnInit(): void {
+    this.loading = true;
     this.getUsersDirectly().subscribe(
       (users) => {
         this.users = users;
         console.log('Users in component:', users);
+        this.loading = false;
       },
       (error) => {
         console.error('Component error:', error);
+        this.loading = false;
       }
     );
   }
@@ -54,9 +58,9 @@ export class UsersComponent implements OnInit {
       width: '400px',
       data: { name: '', email: '', avatar: null },
     });
-
+  
     dialogRef.afterClosed().subscribe((result: DialogData) => {
-      if (result) {
+      if (result && result.name && result.email) {
         this.errorMessage = null;
         this.userService.addUser({ name: result.name, email: result.email, avatar: result.avatar }).subscribe({
           next: () => {
@@ -65,15 +69,30 @@ export class UsersComponent implements OnInit {
             });
           },
           error: (error: HttpErrorResponse) => {
-            if (error.status === 400 && error.error && error.error.error) {
-              this.errorMessage = error.error.error;
-            } else {
-              this.errorMessage = 'An unexpected error occurred.';
-            }
+            this.errorMessage =
+              error.status === 400 && error.error && error.error.error
+                ? error.error.error
+                : 'An unexpected error occurred.';
           },
         });
+      } else {
+        console.warn('Add User dialog closed without valid data.');
       }
     });
+  }
+
+  refreshUsers(): void {
+    this.loading = true;
+    this.getUsersDirectly().subscribe(
+      (users) => {
+        this.users = users;
+        this.loading = false;
+      },
+      (error) => {
+        console.error('Refresh users error:', error);
+        this.loading = false;
+      }
+    );
   }
 
   viewTransactions(userId: number): void {
@@ -89,9 +108,7 @@ export class UsersComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.userService.deleteUser(user.id).subscribe(() => {
-          this.getUsersDirectly().subscribe((users) => {
-            this.users = users;
-          });
+          this.refreshUsers();
         });
       }
     });

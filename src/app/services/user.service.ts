@@ -23,14 +23,19 @@ export class UserService {
 
   constructor(private http: HttpClient) {}
 
+
   addUser(user: { name: string; email: string; avatar?: File }): Observable<User> {
+    if (!user.name || !user.email) {
+      return throwError(() => new Error('Name and email are required.'));
+    }
+  
     const formData = new FormData();
     formData.append('name', user.name);
     formData.append('email', user.email);
     if (user.avatar) {
       formData.append('avatar', user.avatar, user.avatar.name);
     }
-
+  
     return this.http.post<User>(this.apiUrl, formData).pipe(catchError(this.handleError));
   }
 
