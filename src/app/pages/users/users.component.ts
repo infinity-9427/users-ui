@@ -8,6 +8,8 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { environment } from '../../../environments/environment.development';
 import { DeleteConfirmationDialogComponent } from '../../delete-confirmation-dialog/delete-confirmation-dialog.component';
 import { CreateTransactionDialogComponent } from '../../create-transaction-dialog/create-transaction-dialog.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
+
 
 interface User {
   id: number;
@@ -32,7 +34,7 @@ export class UsersComponent implements OnInit {
   errorMessage: string | null = null;
   loading: boolean = true;
 
-  constructor(private router: Router, private userService: UserService, public dialog: MatDialog, private http: HttpClient) {}
+  constructor(private router: Router, private userService: UserService, public dialog: MatDialog, private http: HttpClient, private snackBar: MatSnackBar ) {}
 
   ngOnInit(): void {
     this.loading = true;
@@ -53,6 +55,7 @@ export class UsersComponent implements OnInit {
     return this.http.get<User[]>(this.apiUrl);
   }
 
+ 
   addNewUser(): void {
     const dialogRef = this.dialog.open(AddUserDialogComponent, {
       width: '400px',
@@ -95,24 +98,39 @@ export class UsersComponent implements OnInit {
     );
   }
 
-  viewTransactions(userId: number): void {
-    this.router.navigate(['/transactions', userId]);
-  }
+  viewTransactions(userId: number, userName: string): void {
+  this.router.navigate(['/transactions', userId], { queryParams: { name: userName } });
+}
 
-  deleteUser(user: User): void {
-    const dialogRef = this.dialog.open(DeleteConfirmationDialogComponent, {
-      width: '300px',
-      data: { name: user.name },
-    });
+deleteUser(user: User): void {
+  const dialogRef = this.dialog.open(DeleteConfirmationDialogComponent, {
+    width: '300px',
+    data: { name: user.name },
+  });
 
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.userService.deleteUser(user.id).subscribe(() => {
+  dialogRef.afterClosed().subscribe((result) => {
+    if (result) {
+      this.userService.deleteUser(user.id).subscribe({
+        next: () => {
+          this.snackBar.open(`✅ User "${user.name}" deleted successfully!`, 'Close', {
+            duration: 3000,
+            panelClass: ['snackbar-success'],
+          });
           this.refreshUsers();
-        });
-      }
-    });
-  }
+          
+        },
+        error: (error) => {
+          this.snackBar.open(`❌ Failed to delete user "${user.name}".`, 'Close', {
+            duration: 3000,
+            panelClass: ['snackbar-error'],
+          });
+          console.error('Delete error:', error);
+        },
+      });
+    }
+  });
+}
+
 
   createTransaction(user: User): void {
     const dialogRef = this.dialog.open(CreateTransactionDialogComponent, {

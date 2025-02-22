@@ -21,6 +21,7 @@ import { AddUserDialogComponent } from './add-user-dialog/add-user-dialog.compon
 import { provideHttpClient } from '@angular/common/http';
 import { DeleteConfirmationDialogComponent } from './delete-confirmation-dialog/delete-confirmation-dialog.component';
 import { CreateTransactionDialogComponent } from './create-transaction-dialog/create-transaction-dialog.component';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 
 @NgModule({
@@ -40,6 +41,7 @@ import { CreateTransactionDialogComponent } from './create-transaction-dialog/cr
     MatInputModule,
     MatButtonModule,
     MatDialogModule,
+    MatSnackBarModule,
     MatOption,
     MatSelect,
     BrowserAnimationsModule,

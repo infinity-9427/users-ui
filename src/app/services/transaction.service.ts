@@ -22,6 +22,13 @@ export class TransactionService {
     return this.http.post(this.apiUrl, transaction).pipe(catchError(this.handleError));
   }
 
+  getTransactionsByUserId(userId: number): Observable<any[]> {
+    return this.http
+      .get<any[]>(`${this.apiUrl}/${userId}`)
+      .pipe(catchError(this.handleError));
+  }
+  
+
   private handleError(error: HttpErrorResponse): Observable<never> {
     console.error('An error occurred:', error);
     console.error('Status:', error.status);

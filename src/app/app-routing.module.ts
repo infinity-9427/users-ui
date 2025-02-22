@@ -6,7 +6,7 @@ import { TransactionsComponent } from './pages/transactions/transactions.compone
 const routes: Routes = [
   { path: '', component: UsersComponent, pathMatch: 'full' }, // Set UsersComponent as the default route
   { path: 'users', component: UsersComponent }, // You can keep this if you want /users to also work
-  { path: 'transactions/:userId', component: TransactionsComponent },
+  { path: 'transactions/:id', component: TransactionsComponent },
 ];
 
 @NgModule({
