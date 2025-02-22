@@ -1,0 +1,24 @@
+<h2 mat-dialog-title>Add New User</h2>
+<mat-dialog-content>
+  <mat-form-field appearance="outline">
+    <mat-label>Name</mat-label>
+    <input matInput [(ngModel)]="data.name" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Email</mat-label>
+    <input matInput [(ngModel)]="data.email" type="email" />
+  </mat-form-field>
+
+  <div class="file-upload">
+    <label for="avatarUpload" class="upload-label">
+      Choose Avatar
+    </label>
+    <input id="avatarUpload" type="file" (change)="onFileSelected($event)" style="display: none;" accept="image/*" />
+    <span *ngIf="selectedFile">Selected file: {{ selectedFile.name }}</span>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button (click)="onNoClick()">Cancel</button>
+  <button mat-button [mat-dialog-close]="data" cdkFocusInitial>Save</button>
+</mat-dialog-actions>
