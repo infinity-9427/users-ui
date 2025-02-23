@@ -1,7 +1,7 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, EventEmitter, Output } from '@angular/core'; // Import EventEmitter and Output
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http'; // Import HttpClient and HttpErrorResponse
-import { environment } from '../../environments/environment.development'; // Import environment
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { environment } from '../../environments/environment.development';
 
 export interface DialogData {
   name: string;
@@ -16,14 +16,16 @@ export interface DialogData {
 })
 export class AddUserDialogComponent {
   selectedFile: File | null = null;
-  errorMessage: string | null = null; // Add errorMessage
-  successMessage: string | null = null; // Add successMessage
-  private apiUrl = `${environment.BASE_URL}/users`; // Add API URL
+  errorMessage: string | null = null;
+  successMessage: string | null = null;
+  private apiUrl = `${environment.BASE_URL}/users`;
+
+  @Output() userAdded = new EventEmitter<void>(); // Add event emitter
 
   constructor(
     public dialogRef: MatDialogRef<AddUserDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: DialogData,
-    private http: HttpClient // Inject HttpClient
+    private http: HttpClient
   ) {}
 
   onNoClick(): void {
@@ -31,7 +33,7 @@ export class AddUserDialogComponent {
   }
 
   onFileSelected(event: any): void {
-    this.errorMessage = null; // Clear previous error messages
+    this.errorMessage = null;
     const file: File = event.target.files[0];
     if (file) {
       this.selectedFile = file;
@@ -40,21 +42,20 @@ export class AddUserDialogComponent {
   }
 
   saveUser(): void {
-    this.errorMessage = null; // Clear previous error messages
-    this.successMessage = null; // Clear previous success messages
-
+    this.errorMessage = null;
+    this.successMessage = null;
     const formData = new FormData();
     formData.append('name', this.data.name);
     formData.append('email', this.data.email);
     if (this.data.avatar) {
       formData.append('avatar', this.data.avatar, this.data.avatar.name);
     }
-
     this.http.post(this.apiUrl, formData).subscribe({
       next: () => {
         this.successMessage = 'User added successfully!';
         setTimeout(() => {
-          this.dialogRef.close(true); // Close with success flag
+          this.userAdded.emit(); // Emit event on success
+          this.dialogRef.close(true);
         }, 1500);
       },
       error: (error: HttpErrorResponse) => {

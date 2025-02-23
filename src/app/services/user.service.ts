@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, tap } from 'rxjs/operators';
 import { environment } from '../../environments/environment.development';
 
 interface User {
@@ -23,31 +23,35 @@ export class UserService {
 
   constructor(private http: HttpClient) {}
 
-
   addUser(user: { name: string; email: string; avatar?: File }): Observable<User> {
-    if (!user.name || !user.email) {
+    console.log('UserService.addUser called with:', user);
+    if (!user.name ||!user.email) {
       return throwError(() => new Error('Name and email are required.'));
     }
-  
+
     const formData = new FormData();
     formData.append('name', user.name);
     formData.append('email', user.email);
     if (user.avatar) {
       formData.append('avatar', user.avatar, user.avatar.name);
     }
-  
-    return this.http.post<User>(this.apiUrl, formData).pipe(catchError(this.handleError));
+
+    return this.http.post<User>(this.apiUrl, formData).pipe(
+      tap((response) => console.log('UserService.addUser response:', response)),
+      catchError(this.handleError)
+    );
   }
 
   deleteUser(userId: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${userId}`).pipe(catchError(this.handleError));
+    console.log('UserService.deleteUser called with userId:', userId);
+    return this.http.delete(`${this.apiUrl}/${userId}`).pipe(
+      tap((response) => console.log('UserService.deleteUser response:', response)),
+      catchError(this.handleError)
+    );
   }
 
   private handleError(error: HttpErrorResponse): Observable<never> {
-    console.error('An error occurred:', error);
-    console.error('Status:', error.status);
-    console.error('Error body:', error.error);
-    console.error('url:', error.url);
+    console.error('UserService.handleError:', error);
     return throwError(() => 'Something went wrong. Please try again later.');
   }
 }

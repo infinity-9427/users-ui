@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { UserService } from '../../services/user.service';
 import { MatDialog } from '@angular/material/dialog';
@@ -9,7 +9,7 @@ import { environment } from '../../../environments/environment.development';
 import { DeleteConfirmationDialogComponent } from '../../delete-confirmation-dialog/delete-confirmation-dialog.component';
 import { CreateTransactionDialogComponent } from '../../create-transaction-dialog/create-transaction-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
-
+import { finalize } from 'rxjs/operators';
 
 interface User {
   id: number;
@@ -34,103 +34,94 @@ export class UsersComponent implements OnInit {
   errorMessage: string | null = null;
   loading: boolean = true;
 
-  constructor(private router: Router, private userService: UserService, public dialog: MatDialog, private http: HttpClient, private snackBar: MatSnackBar ) {}
+  constructor(
+    private router: Router,
+    private userService: UserService,
+    public dialog: MatDialog,
+    private http: HttpClient,
+    private snackBar: MatSnackBar,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
+    this.loadUsers();
+  }
+
+  loadUsers(): void {
     this.loading = true;
-    this.getUsersDirectly().subscribe(
-      (users) => {
-        this.users = users;
-        console.log('Users in component:', users);
-        this.loading = false;
-      },
-      (error) => {
-        console.error('Component error:', error);
-        this.loading = false;
-      }
-    );
+    this.getUsersDirectly()
+      .pipe(
+        finalize(() => {
+          this.loading = false;
+          this.cdr.detectChanges();
+        })
+      )
+      .subscribe({
+        next: (users) => {
+          this.users = users;
+        },
+        error: (error) => {
+        },
+        complete: () => {
+        }
+      });
   }
 
   getUsersDirectly(): Observable<User[]> {
     return this.http.get<User[]>(this.apiUrl);
   }
 
- 
   addNewUser(): void {
     const dialogRef = this.dialog.open(AddUserDialogComponent, {
       width: '400px',
       data: { name: '', email: '', avatar: null },
     });
-  
+
+    dialogRef.componentInstance.userAdded.subscribe(() => {
+      this.loadUsers();
+    });
+
     dialogRef.afterClosed().subscribe((result: DialogData) => {
       if (result && result.name && result.email) {
-        this.errorMessage = null;
-        this.userService.addUser({ name: result.name, email: result.email, avatar: result.avatar }).subscribe({
-          next: () => {
-            this.getUsersDirectly().subscribe((users) => {
-              this.users = users;
-            });
-          },
-          error: (error: HttpErrorResponse) => {
-            this.errorMessage =
-              error.status === 400 && error.error && error.error.error
-                ? error.error.error
-                : 'An unexpected error occurred.';
-          },
-        });
       } else {
-        console.warn('Add User dialog closed without valid data.');
+        console.warn('UsersComponent.addNewUser() dialog closed without valid data.');
       }
     });
   }
 
-  refreshUsers(): void {
-    this.loading = true;
-    this.getUsersDirectly().subscribe(
-      (users) => {
-        this.users = users;
-        this.loading = false;
-      },
-      (error) => {
-        console.error('Refresh users error:', error);
-        this.loading = false;
-      }
-    );
+  viewTransactions(userId: number, userName: string): void {
+    this.router.navigate(['/transactions', userId], { queryParams: { name: userName } });
   }
 
-  viewTransactions(userId: number, userName: string): void {
-  this.router.navigate(['/transactions', userId], { queryParams: { name: userName } });
-}
+  deleteUser(user: User): void {
+    const dialogRef = this.dialog.open(DeleteConfirmationDialogComponent, {
+      width: '300px',
+      data: { name: user.name },
+    });
 
-deleteUser(user: User): void {
-  const dialogRef = this.dialog.open(DeleteConfirmationDialogComponent, {
-    width: '300px',
-    data: { name: user.name },
-  });
-
-  dialogRef.afterClosed().subscribe((result) => {
-    if (result) {
-      this.userService.deleteUser(user.id).subscribe({
-        next: () => {
-          this.snackBar.open(`✅ User "${user.name}" deleted successfully!`, 'Close', {
-            duration: 3000,
-            panelClass: ['snackbar-success'],
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.userService.deleteUser(user.id)
+          .pipe(finalize(() => this.loadUsers()))
+          .subscribe({
+            next: () => {
+              this.snackBar.open(`✅ User "${user.name}" deleted successfully!`, 'Close', {
+                duration: 3000,
+                panelClass: ['snackbar-success'],
+              });
+            },
+            error: (error) => {
+              console.error('UsersComponent.deleteUser() error:', error);
+              this.snackBar.open(`❌ Failed to delete user "${user.name}".`, 'Close', {
+                duration: 3000,
+                panelClass: ['snackbar-error'],
+              });
+              console.error('Delete error:', error);
+            },
           });
-          this.refreshUsers();
-          
-        },
-        error: (error) => {
-          this.snackBar.open(`❌ Failed to delete user "${user.name}".`, 'Close', {
-            duration: 3000,
-            panelClass: ['snackbar-error'],
-          });
-          console.error('Delete error:', error);
-        },
-      });
-    }
-  });
-}
-
+      }
+    });
+  }
 
   createTransaction(user: User): void {
     const dialogRef = this.dialog.open(CreateTransactionDialogComponent, {
