@@ -1,8 +1,9 @@
 {
     "/api": {
-      "target": "http://localhost:6000",
-      "secure": false,
+      "target": "https://api-users-9c65.onrender.com",
+      "secure": true,
       "changeOrigin": true,
+      "pathRewrite": { "^/api": "/api/v1" },
       "logLevel": "debug"
     }
   }

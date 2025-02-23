@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-import { environment } from '../../environments/environment.development';
 
 interface User {
   id: number;
@@ -15,13 +14,17 @@ interface User {
   createdAt: string;
 }
 
+
 @Injectable({
   providedIn: 'root',
 })
 export class UserService {
-  private apiUrl = `${environment.BASE_URL}/users`;
+  private apiUrl = `/api/users`;
+
 
   constructor(private http: HttpClient) {}
+
+  
 
   addUser(user: { name: string; email: string; avatar?: File }): Observable<User> {
     console.log('UserService.addUser called with:', user);

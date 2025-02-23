@@ -1,7 +1,6 @@
 import { Component, Inject, EventEmitter, Output } from '@angular/core'; // Import EventEmitter and Output
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { environment } from '../../environments/environment.development';
 
 export interface DialogData {
   name: string;
@@ -18,7 +17,8 @@ export class AddUserDialogComponent {
   selectedFile: File | null = null;
   errorMessage: string | null = null;
   successMessage: string | null = null;
-  private apiUrl = `${environment.BASE_URL}/users`;
+  private apiUrl = `/api/users`;
+
 
   @Output() userAdded = new EventEmitter<void>(); // Add event emitter
 

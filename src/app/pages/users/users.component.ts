@@ -5,7 +5,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { AddUserDialogComponent, DialogData } from '../../add-user-dialog/add-user-dialog.component';
 import { Observable } from 'rxjs';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { environment } from '../../../environments/environment.development';
 import { DeleteConfirmationDialogComponent } from '../../delete-confirmation-dialog/delete-confirmation-dialog.component';
 import { CreateTransactionDialogComponent } from '../../create-transaction-dialog/create-transaction-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -30,7 +29,8 @@ interface User {
 export class UsersComponent implements OnInit {
   users: User[] = [];
   displayedColumns: string[] = ['id', 'name', 'email', 'avatar', 'actions', 'delete', 'createTransaction'];
-  private apiUrl = `${environment.BASE_URL}/users`;
+  private apiUrl = `/api/users`;
+
   errorMessage: string | null = null;
   loading: boolean = true;
 
