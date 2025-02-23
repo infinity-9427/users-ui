@@ -5,6 +5,7 @@
 /tmp
 /out-tsc
 /bazel-out
+.env
 
 # Environment files
 /src/environments/environment*.ts
